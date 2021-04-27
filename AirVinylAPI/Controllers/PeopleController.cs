@@ -133,12 +133,6 @@ namespace AirVinylAPI.Controllers
             {
                 return NotFound();
             }
-
-
-
-
-
-
             patch.Patch(currentPerson);
             _ctx.SaveChanges();
             return StatusCode(System.Net.HttpStatusCode.NoContent);
@@ -164,8 +158,132 @@ namespace AirVinylAPI.Controllers
                 person.Friends.Remove(currentPerson);
             }
 
+            _ctx.People.Remove(currentPerson);
+            _ctx.SaveChanges();
            return StatusCode(System.Net.HttpStatusCode.NoContent);
         }
+
+
+
+
+        [HttpPost]
+        [ODataRoute("People({key})/Friends/$ref")] 
+  
+        public IHttpActionResult CreateLinkToFriend([FromODataUri] int key, [FromBody] Uri link)
+        {            
+            var currentperson = _ctx.People.Include("Friends")
+                .FirstOrDefault(p => p.PersonId == key);
+
+            if (currentperson == null)
+            {
+                return NotFound();
+            }
+
+            int keyOfFriendToAadd = Request.GetKeyValue<int>(link);
+            if (currentperson.Friends.Any(i => i.PersonId == keyOfFriendToAadd))
+            {
+                return BadRequest(String.Format("the person with the is {0 } is already linked to the person with the id {1}", key,keyOfFriendToAadd));
+            }
+
+            var friendToLinkTo = _ctx.People.FirstOrDefault(p => p.PersonId == keyOfFriendToAadd);
+            if (friendToLinkTo == null)
+            {
+                return NotFound();
+            }
+            currentperson.Friends.Add(friendToLinkTo);
+            _ctx.SaveChanges();
+
+            return StatusCode(System.Net.HttpStatusCode.NoContent);
+        }
+
+
+        [HttpPost]
+        [ODataRoute("People({key})/Friends({relatedKey})/$ref")]
+
+        public IHttpActionResult UpadateLinkToFriend([FromODataUri] int key, [FromODataUri] int realtedKey, [FromBody] Uri link)
+        {
+
+            //find th person if exists , return NotFound if not
+            var currentperson = _ctx.People.Include("Friends")
+                .FirstOrDefault(p => p.PersonId == key);
+
+            if (currentperson == null)
+            {
+                return NotFound();
+            }
+            //search the friend 
+            var currentFriend = currentperson.Friends.FirstOrDefault(f => f.PersonId == realtedKey);
+            if ( currentFriend == null)
+            {
+                return NotFound();
+            }
+
+
+            int keyOfTheFriendToAdd = Request.GetKeyValue<int>(link);
+            if (currentperson.Friends.Any(i => i.PersonId == keyOfTheFriendToAdd))
+            {
+                return BadRequest(String.Format("the person with the is {0 } is already linked to the person with the id {1}", key, keyOfTheFriendToAdd));
+            }
+
+           
+            var friendToLinkTo = _ctx.People.FirstOrDefault(p => p.PersonId == keyOfTheFriendToAdd);
+            if (friendToLinkTo == null)
+            {
+                return NotFound();
+            }
+            currentperson.Friends.Remove(currentFriend);
+            currentperson.Friends.Add(friendToLinkTo);
+            _ctx.SaveChanges();
+
+            return StatusCode(System.Net.HttpStatusCode.NoContent);
+        }
+
+
+
+        //Delete the relationship
+        // DELETE odata/People(key)/Freinds/$re$id ={relatedUriWithRelatedKey}
+        [HttpPost]
+        [ODataRoute("People({key})/Friends({relatedKey})/$ref")]
+
+        public IHttpActionResult DeleteLinkToFriend([FromODataUri] int key, [FromODataUri] int realtedKey, [FromBody] Uri link)
+        {
+            /// d'abord on verfie si la person et son ami existent 
+            /// Par la suite on supprime l'ami de la liste des ami de la personne
+            //find th person if exists , return NotFound if not
+            var currentperson = _ctx.People.Include("Friends")
+                .FirstOrDefault(p => p.PersonId == key);
+
+            if (currentperson == null)
+            {
+                return NotFound();
+            }
+            //search the friend 
+            var friend = currentperson.Friends.FirstOrDefault(f => f.PersonId == realtedKey);
+            if (friend == null)
+            {
+                return NotFound();
+            }
+
+
+            int keyOfTheFriendToAdd = Request.GetKeyValue<int>(link);
+            if (currentperson.Friends.Any(i => i.PersonId == keyOfTheFriendToAdd))
+            {
+                return BadRequest(String.Format("the person with the is {0} is already linked to the person with the id {1}", key, keyOfTheFriendToAdd));
+            }            
+            currentperson.Friends.Remove(friend);
+            _ctx.SaveChanges();
+            return StatusCode(System.Net.HttpStatusCode.NoContent);
+        }
+
+
+
+
+
+
+
+
+
+
 
         protected override void Dispose(bool disposing)
         {
