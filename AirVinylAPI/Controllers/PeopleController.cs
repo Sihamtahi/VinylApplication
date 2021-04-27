@@ -68,7 +68,7 @@ namespace AirVinylAPI.Controllers
         [ODataRoute("People({key})/Gender")]
         public IHttpActionResult GetPersonCollectionPropoerty([FromODataUri] int key)
 
-       
+        { 
 
             var collectionPropertyToGet = Url.Request.RequestUri.Segments.Last();
             var person = _ctx.People.Include(collectionPropertyToGet)
@@ -83,6 +83,43 @@ namespace AirVinylAPI.Controllers
              
             return this.CreateOKHttpActionResult(collectionPropertyValue);
         }
+
+        public IHttpActionResult Post(AirVinyl.Model.Person person)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            _ctx.People.Add(person);
+            _ctx.SaveChanges();
+
+            return Created(person);
+        }
+
+
+
+        public IHttpActionResult Put( [FromODataUri] int key ,AirVinyl.Model.Person person)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+
+            var currentPerson = _ctx.People.FirstOrDefault(p => p.PersonId == key);
+            if ( currentPerson == null )
+            {
+                return NotFound();
+            }
+
+            /// to make sure that we are nt updating an other person 
+
+            person.PersonId = currentPerson.PersonId;
+            _ctx.Entry(currentPerson).CurrentValues.SetValues(person);
+            _ctx.SaveChanges();
+            return StatusCode(System.Net.HttpStatusCode.NoContent);
+        }
+
 
 
 
