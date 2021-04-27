@@ -1,0 +1,6 @@
+C:\Users\TAHI Siham\Source\Repos\KevinDockx\ODataV4_Course\AirVinyl.Model\bin\Debug\AirVinyl.Model.dll
+C:\Users\TAHI Siham\Source\Repos\KevinDockx\ODataV4_Course\AirVinyl.Model\bin\Debug\AirVinyl.Model.pdb
+C:\Users\TAHI Siham\Source\Repos\KevinDockx\ODataV4_Course\AirVinyl.Model\obj\Debug\AirVinyl.Model.csprojAssemblyReference.cache
+C:\Users\TAHI Siham\Source\Repos\KevinDockx\ODataV4_Course\AirVinyl.Model\obj\Debug\AirVinyl.Model.csproj.CoreCompileInputs.cache
+C:\Users\TAHI Siham\Source\Repos\KevinDockx\ODataV4_Course\AirVinyl.Model\obj\Debug\AirVinyl.Model.dll
+C:\Users\TAHI Siham\Source\Repos\KevinDockx\ODataV4_Course\AirVinyl.Model\obj\Debug\AirVinyl.Model.pdb
