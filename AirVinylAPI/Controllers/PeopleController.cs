@@ -120,8 +120,52 @@ namespace AirVinylAPI.Controllers
             return StatusCode(System.Net.HttpStatusCode.NoContent);
         }
 
+        public IHttpActionResult Patch([FromODataUri] int key, Delta<AirVinyl.Model.Person> patch)
+        {   //Delta is a class used to track changes in an EntityType
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
 
+            var currentPerson = _ctx.People.FirstOrDefault(p => p.PersonId == key);
+            if (currentPerson == null)
+            {
+                return NotFound();
+            }
+
+
+
+
+
+
+            patch.Patch(currentPerson);
+            _ctx.SaveChanges();
+            return StatusCode(System.Net.HttpStatusCode.NoContent);
+
+
+        }
+
+        public IHttpActionResult Delete ([FromODataUri] int key)
+        {
+
+            var currentPerson = _ctx.People.Include("Friends").FirstOrDefault(p => p.PersonId == key);
+            if ( currentPerson == null )
+            {
+                return NotFound();
+            }
+            var peopleWithCurrentPersonFriend = _ctx.People.Include("Friends")
+                .Where(p => p.Friends.Select(f => f.PersonId).AsQueryable().Contains(key));
+
+
+            foreach(var person in peopleWithCurrentPersonFriend.ToList())
+            {
+
+                person.Friends.Remove(currentPerson);
+            }
+
+           return StatusCode(System.Net.HttpStatusCode.NoContent);
+        }
 
         protected override void Dispose(bool disposing)
         {
