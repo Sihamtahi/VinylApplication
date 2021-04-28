@@ -18,13 +18,14 @@ namespace AirVinylAPI.Controllers
         private AirVinylDbContext _ctx = new AirVinylDbContext();
        
         [ODataRoute]
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth =3)]
         public   IHttpActionResult Get ()
         {
             //this will creat an http response with code 200 ! and the list of people.
             return Ok(_ctx.People);
         }
-        [EnableQuery]
+        [ODataRoute]
+        [EnableQuery(MaxExpansionDepth = 3, MaxSkip =10, MaxTop =5)]
         public IHttpActionResult Get([FromODataUri] int key )
         {
             var person = _ctx.People.FirstOrDefault(p => p.PersonId == key);
@@ -113,7 +114,7 @@ namespace AirVinylAPI.Controllers
             }
             //nous renovoyons les VinylRecords uniquement pour la personne
             // Pas la peine de récuperer toute la personne.
-            return  Ok(_ctx.VinylRecords.Where(v=> v.Person.PersonId == key);
+            return  Ok(_ctx.VinylRecords.Where(v=> v.Person.PersonId == key));
         }
 
         public IHttpActionResult Post(AirVinyl.Model.Person person)
