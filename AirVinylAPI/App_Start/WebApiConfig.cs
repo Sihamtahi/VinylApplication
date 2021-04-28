@@ -14,7 +14,8 @@ namespace AirVinylAPI
         public static void Register(HttpConfiguration config)
         {
             // Configuration et services API Web
-
+           
+            config.Count().Filter().OrderBy().Expand().Select().MaxTop(null);
             config.MapODataServiceRoute(
                                         routeName: "ODataRoute",
                                         routePrefix: "odata",
@@ -35,6 +36,8 @@ namespace AirVinylAPI
             builder.ContainerName = "AirVinylContainer";
             builder.EntitySet<Person>("People"); 
             builder.EntitySet<VinylRecord>("VinylRecords"); 
+
+
            
            
 

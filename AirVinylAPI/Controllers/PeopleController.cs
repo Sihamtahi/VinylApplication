@@ -8,19 +8,23 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Results;
 using AirVinyl.API.Helpers;
+ 
+
 namespace AirVinylAPI.Controllers
 {
     public class PeopleController : ODataController 
     {
 
         private AirVinylDbContext _ctx = new AirVinylDbContext();
-
+       
+        [ODataRoute]
+        [EnableQuery]
         public   IHttpActionResult Get ()
         {
             //this will creat an http response with code 200 ! and the list of people.
             return Ok(_ctx.People);
         }
-
+        [EnableQuery]
         public IHttpActionResult Get([FromODataUri] int key )
         {
             var person = _ctx.People.FirstOrDefault(p => p.PersonId == key);
@@ -63,14 +67,19 @@ namespace AirVinylAPI.Controllers
 
         [HttpGet]
         [ODataRoute("People({key})/Friends")]
-        [ODataRoute("People({key})/VinylRecords")]
-        [ODataRoute("People({key})/LastName")]
-        [ODataRoute("People({key})/Gender")]
+        [EnableQuery]
         public IHttpActionResult GetPersonCollectionPropoerty([FromODataUri] int key)
 
         { 
+            /// Dans ce cas, nous allons récuperer tout l'enregistrement de 
+            /// Person 
+            /// par la suite seuls les champs sollicités seront retournée
+            /// Donc on accède à tous les champs de l'entité person 
 
+
+            //on récupère le
             var collectionPropertyToGet = Url.Request.RequestUri.Segments.Last();
+            // récupère la personne ayant l'id = key avec un iclude de la Property
             var person = _ctx.People.Include(collectionPropertyToGet)
                 .FirstOrDefault(p => p.PersonId == key);
 
@@ -78,10 +87,33 @@ namespace AirVinylAPI.Controllers
             {
                 return NotFound();
             }
+
+            //On retourne la colection d'éléments de property
             
             var collectionPropertyValue = person.GetValue(collectionPropertyToGet);
              
             return this.CreateOKHttpActionResult(collectionPropertyValue);
+        }
+
+        /**********Récupérer direcetement le champs voulu dans la BDD **************/
+
+        [HttpGet]
+        [ODataRoute("People({key})/VinylRecords")]
+        [EnableQuery]
+        public IHttpActionResult GetVinylRecordsForPerson([FromODataUri] int key)
+
+        {
+
+            // On verifie juste si la personne contenant l'id key existe dans la BDD
+            var person = _ctx.People.FirstOrDefault(p => p.PersonId == key);
+
+            if (person == null)
+            {
+                return NotFound();
+            }
+            //nous renovoyons les VinylRecords uniquement pour la personne
+            // Pas la peine de récuperer toute la personne.
+            return  Ok(_ctx.VinylRecords.Where(v=> v.Person.PersonId == key);
         }
 
         public IHttpActionResult Post(AirVinyl.Model.Person person)
@@ -291,9 +323,6 @@ namespace AirVinylAPI.Controllers
             _ctx.Dispose();
             base.Dispose(disposing);
         }
-
-
-
 
 
     }
