@@ -25,8 +25,8 @@ namespace AirVinyl.Model
         private ICollection<string> _tags { get; set; }
         public ICollection<string> Tags
         {
-            get { retrun _tags}
-            set { _tags = value}
+            get { return _tags; }
+            set { _tags = value; }
 
             
         }

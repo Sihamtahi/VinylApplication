@@ -116,6 +116,31 @@ namespace AirVinylAPI.Controllers
             // Pas la peine de récuperer toute la personne.
             return  Ok(_ctx.VinylRecords.Where(v=> v.Person.PersonId == key));
         }
+        /****************************Recprere un VinylRecord d'une personne précise *********************/
+        [HttpGet]
+        [ODataRoute("People({key})/VinylRecords({vinylRecordKey})")]
+        [EnableQuery]
+        public IHttpActionResult GetVinylRecordsForPerson([FromODataUri] int key, [FromODataUri] int vinylRecordKey)
+
+        {
+
+            // On verifie juste si la personne contenant l'id key existe dans la BDD
+            var person = _ctx.People.FirstOrDefault(p => p.PersonId == key);
+
+            if (person == null)
+            {
+                return NotFound();
+            }
+            var vinylRecords = _ctx.VinylRecords.Where(v => v.Person.PersonId == key && v.VinylRecordId == vinylRecordKey);
+            if (!vinylRecords.Any())
+            {
+                return NotFound();
+            }
+            return Ok(SingleResult.Create(vinylRecords));
+        }
+
+
+
 
         public IHttpActionResult Post(AirVinyl.Model.Person person)
         {

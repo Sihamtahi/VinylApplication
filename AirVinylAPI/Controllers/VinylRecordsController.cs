@@ -7,6 +7,8 @@ using AirVinyl.DataAccessLayer;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNet.OData.Routing;
 using AirVinyl.API.Helpers;
+
+/****
 namespace AirVinylAPI.Controllers
 {
     public class VinylRecordsController :  ODataController
@@ -45,3 +47,4 @@ namespace AirVinylAPI.Controllers
 
     }
 }
+**/
