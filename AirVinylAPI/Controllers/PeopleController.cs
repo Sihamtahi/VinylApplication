@@ -8,7 +8,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Results;
 using AirVinyl.API.Helpers;
- 
+using AirVinyl.Model;
 
 namespace AirVinylAPI.Controllers
 {
@@ -140,7 +140,102 @@ namespace AirVinylAPI.Controllers
         }
 
 
+        //** Get a VinylRecord For A pERSON****************************/
+        [HttpPost]
+        [ODataRoute("People({key})/VinylRecords")]
+        [EnableQuery]
+        public IHttpActionResult CreateAVinylRecordForAperson ([FromODataUri] int key, VinylRecord vinylRecord)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            ///Verifier si la personne existe
+            var person = _ctx.People.FirstOrDefault(p => p.PersonId == key);
 
+            if (person == null)
+            {
+                return NotFound();
+            }
+            vinylRecord.Person = person;
+            _ctx.VinylRecords.Add(vinylRecord);
+            _ctx.SaveChanges();
+
+            return Created(vinylRecord);
+        }
+
+
+
+
+
+
+        /***********Ptah un VinylRecord d'une personne **************************/
+        [HttpPatch]
+        [ODataRoute("People({key})/VinylRecords({vinylRecordKey})")]
+        [EnableQuery]
+        public IHttpActionResult UpdateAVinylRecordForAperson([FromODataUri] int key,
+            [FromODataUri] int vinylRecordKey,
+            Delta<VinylRecord> patch)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            ///Verifier si la personne existe
+            var person = _ctx.People.FirstOrDefault(p => p.PersonId == key);
+
+            if (person == null)
+            {
+                return NotFound();
+            }
+
+            var currentVinylRecord = _ctx.VinylRecords.Where(v => v.Person.PersonId == key && v.VinylRecordId == vinylRecordKey );
+            if (currentVinylRecord == null)
+            {
+                return NotFound();
+            }
+
+            patch.Patch((VinylRecord)currentVinylRecord); 
+
+
+
+            _ctx.SaveChanges();
+
+            return StatusCode(System.Net.HttpStatusCode.NoContent);
+        }
+
+        /****************Delete A vinylRecord for a person ***************************/
+        [HttpDelete]
+        [ODataRoute("People({key})/VinylRecords({vinylRecordKey})")]
+        [EnableQuery]
+        public IHttpActionResult RemoveAVinylRecordForAperson([FromODataUri] int key,
+            [FromODataUri] int vinylRecordKey)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            ///Verifier si la personne existe
+            var person = _ctx.People.FirstOrDefault(p => p.PersonId == key);
+
+            if (person == null)
+            {
+                return NotFound();
+            }
+
+            var currentVinylRecord = _ctx.VinylRecords.Where(v => v.Person.PersonId == key && v.VinylRecordId == vinylRecordKey);
+            if (currentVinylRecord == null)
+            {
+                return NotFound();
+            }
+
+
+            _ctx.VinylRecords.Remove((VinylRecord)currentVinylRecord);
+            _ctx.SaveChanges();
+
+            return StatusCode(System.Net.HttpStatusCode.NoContent);
+        }
+        /*****************************************************************************************/
 
         public IHttpActionResult Post(AirVinyl.Model.Person person)
         {
